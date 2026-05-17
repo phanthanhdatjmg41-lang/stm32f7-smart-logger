@@ -1,6 +1,0 @@
-../Core/Src/app_system.c:26:6:System_Init	1
-../Core/Src/app_system.c:38:6:System_SetState	1
-../Core/Src/app_system.c:52:15:System_GetState	1
-../Core/Src/app_system.c:65:7:System_GetStateString	3
-../Core/Src/app_system.c:96:6:System_Reset	1
-../Core/Src/app_system.c:112:10:System_GetUptimeSeconds	1

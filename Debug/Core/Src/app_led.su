@@ -1,4 +1,0 @@
-../Core/Src/app_led.c:9:6:LED_On	8	static
-../Core/Src/app_led.c:19:6:LED_Off	8	static
-../Core/Src/app_led.c:29:6:LED_Toggle	8	static
-../Core/Src/app_led.c:39:15:LED_GetState	8	static

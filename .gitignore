@@ -1,0 +1,22 @@
+# STM32CubeIDE / Eclipse workspace
+.metadata/
+
+# Build folders
+Debug/
+Release/
+
+# Build output files
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+*.su
+*.cyclo
+
+# Logs / temporary files
+*.log
+*.tmp
+*.bak

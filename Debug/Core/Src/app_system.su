@@ -1,6 +1,0 @@
-../Core/Src/app_system.c:26:6:System_Init	4	static
-../Core/Src/app_system.c:38:6:System_SetState	16	static
-../Core/Src/app_system.c:52:15:System_GetState	4	static
-../Core/Src/app_system.c:65:7:System_GetStateString	4	static
-../Core/Src/app_system.c:96:6:System_Reset	4	static
-../Core/Src/app_system.c:112:10:System_GetUptimeSeconds	8	static
