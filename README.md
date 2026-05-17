@@ -14,7 +14,7 @@
 ---
 
 ## 🛠️ Chức Năng Hiện Tại
-Hệ thống hỗ trợ nhận dạng lệnh dạng chuỗi văn bản không phân biệt ký tự đặc biệt, thực thi điều khiển ngoại vi và ghi lại nhật ký hoạt động thông qua UART (baud rate `115200`):
+Hệ thống hỗ trợ nhận lệnh dạng chuỗi văn bản qua UART, thực thi điều khiển ngoại vi và ghi lại nhật ký hoạt động thông qua UART, thực thi điều khiển ngoại vi và ghi lại nhật ký hoạt động thông qua UART (baud rate `115200`):
 - **Phản hồi trạng thái hệ thống**: `IDLE`, `RUNNING`, `ERROR`.
 - **Hỗ trợ 10 lệnh điều khiển & giám sát**:
   - `help`: Hiển thị danh sách tất cả các lệnh khả dụng.
