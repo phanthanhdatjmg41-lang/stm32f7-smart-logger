@@ -95,7 +95,7 @@ Dự án được tổ chức theo cấu trúc module hóa cao nhằm tối ưu 
 
 ### 🔹 Giai đoạn 12: Tách biệt hoàn toàn logic vòng lặp (`app_main`)
 - Chuyển toàn bộ các biến nhận đệm (`rxBuffer`, `rxByte`, `rxIndex`) từ file `main.c` sang `app_main.c`.
-- Thiết lập hàm quản lý nhận ngắt/phím nhấn `App_Main_Init` và `App_Main_Loop`.
+- Thiết lập hàm App_Main_Init và App_Main_Loop để quản lý khởi tạo ứng dụng và nhận lệnh UART theo cơ chế polling.
 - Đưa file `main.c` về cấu trúc sạch 100%, bảo đảm không bao giờ bị mất mã nguồn ứng dụng khi lập trình viên thực hiện sinh lại code (Generate Code) cấu hình từ CubeMX `.ioc`.
 
 ---
