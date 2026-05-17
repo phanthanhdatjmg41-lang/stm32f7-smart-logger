@@ -16,6 +16,12 @@
 void Command_Process(char *cmd)
 {
     /*
+     * Moi khi Command_Process duoc goi nghia la co mot lenh da duoc nhap.
+     * Tang bien dem de phuc vu lenh stats.
+     */
+    System_IncrementCommandCount();
+
+    /*
      * strcmp:
      * - Dung de so sanh chuoi
      * - Neu hai chuoi giong nhau thi tra ve 0
@@ -33,6 +39,7 @@ void Command_Process(char *cmd)
         UART_Send("led status\r\n");
         UART_Send("reset\r\n");
         UART_Send("uptime\r\n");
+        UART_Send("stats\r\n");
     }
     else if (strcmp(cmd, "status") == 0)
     {
@@ -92,6 +99,45 @@ void Command_Process(char *cmd)
          */
         sprintf(msg, "\r\nSystem uptime: %lu s\r\n", System_GetUptimeSeconds());
 
+        UART_Send(msg);
+    }
+    else if (strcmp(cmd, "stats") == 0)
+    {
+        char msg[80];
+
+        UART_Send("\r\nSystem stats:\r\n");
+
+        /*
+         * In trang thai he thong hien tai.
+         */
+        UART_Send("State: ");
+        UART_Send(System_GetStateString());
+        UART_Send("\r\n");
+
+        /*
+         * In trang thai LED hien tai.
+         */
+        UART_Send("LED: ");
+        if (LED_GetState() == GPIO_PIN_SET)
+        {
+            UART_Send("ON\r\n");
+        }
+        else
+        {
+            UART_Send("OFF\r\n");
+        }
+
+        /*
+         * In uptime.
+         * HAL_GetTick tra ve ms, chia 1000 de doi sang giay.
+         */
+        snprintf(msg, sizeof(msg), "Uptime: %lu s\r\n", HAL_GetTick() / 1000);
+        UART_Send(msg);
+
+        /*
+         * In so lenh da nhap.
+         */
+        snprintf(msg, sizeof(msg), "Command count: %lu\r\n", System_GetCommandCount());
         UART_Send(msg);
     }
     else

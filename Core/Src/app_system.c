@@ -1,5 +1,12 @@
 #include "app_system.h"
 
+
+/*
+ * commandCount:
+ * Dem so lenh hop le da duoc xu ly.
+ */
+static uint32_t commandCount = 0;
+
 /*
  * systemState:
  * Bien static chi duoc dung ben trong file app_system.c.
@@ -25,7 +32,16 @@ static SystemState_t systemState = SYSTEM_IDLE;
  */
 void System_Init(void)
 {
+    /*
+     * Dua he thong ve trang thai ban dau.
+     */
     systemState = SYSTEM_IDLE;
+
+
+    /*
+     * Reset bien dem lenh ve 0 khi he thong khoi dong.
+     */
+    commandCount = 0;
 }
 
 /*
@@ -112,4 +128,28 @@ void System_Reset(void)
 uint32_t System_GetUptimeSeconds(void)
 {
     return HAL_GetTick() / 1000;
+}
+
+/*
+ * System_IncrementCommandCount:
+ * Chuc nang:
+ * - Tang bien dem moi khi co mot lenh duoc xu ly.
+ *
+ * Ly do:
+ * - Giup he thong biet nguoi dung da gui bao nhieu lenh.
+ * - Lam cho project dung tinh chat logger/giam sat hon.
+ */
+void System_IncrementCommandCount(void)
+{
+    commandCount++;
+}
+
+/*
+ * System_GetCommandCount:
+ * Chuc nang:
+ * - Tra ve so lenh da duoc xu ly.
+ */
+uint32_t System_GetCommandCount(void)
+{
+    return commandCount;
 }

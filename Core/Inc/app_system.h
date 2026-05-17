@@ -64,6 +64,18 @@ void System_Reset(void);
  */
 uint32_t System_GetUptimeSeconds(void);
 
+/*
+ * System_IncrementCommandCount:
+ * Tang bien dem so lenh da duoc xu ly.
+ */
+void System_IncrementCommandCount(void);
+
+/*
+ * System_GetCommandCount:
+ * Tra ve so lenh da duoc xu ly.
+ */
+uint32_t System_GetCommandCount(void);
+
 
 
 #endif
