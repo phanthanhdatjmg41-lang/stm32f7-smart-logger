@@ -1,105 +1,196 @@
-# STM32F7 Smart Logger
+# STM32F7 Smart Logger & CLI Controller
 
-## 🎯 Mục Tiêu
-Đồ án xây dựng hệ thống điều khiển phần cứng và giám sát trạng thái thông qua giao tiếp UART trên vi điều khiển **STM32F746**.
+[![Platform: STM32](https://img.shields.io/badge/Platform-STM32F7-blue.svg?style=flat-square&logo=stmicroelectronics)](https://www.st.com/en/microcontrollers-microprocessors/stm32f7-series.html)
+[![Language: C](https://img.shields.io/badge/Language-C-00599C.svg?style=flat-square&logo=c)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Toolchain: STM32CubeIDE](https://img.shields.io/badge/Toolchain-STM32CubeIDE-002A54.svg?style=flat-square)](https://www.st.com/en/development-tools/stm32cubeide.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
----
-
-## 🔌 Phần Cứng Sử Dụng
-- **Vi điều khiển**: STM32F746 Core7
-- **Board phát triển**: Open7 board
-- **Giao tiếp**: USART1 qua module chuyển đổi CP2102 USB to UART
-- **Thiết bị ngoại vi**: LED ngoài kết nối tại chân `PB1`
+An elegant, modular CLI (Command Line Interface) controller and system monitor designed for the high-performance **STM32F746IGTX** microcontroller. This project provides a robust, interactive shell over UART, allowing real-time system administration, GPIO control, logging level management, and run-time statistics tracking.
 
 ---
 
-## 🛠️ Chức Năng Hiện Tại
-Hệ thống hỗ trợ nhận lệnh dạng chuỗi văn bản qua UART, thực thi điều khiển ngoại vi và ghi lại nhật ký hoạt động thông qua UART, thực thi điều khiển ngoại vi và ghi lại nhật ký hoạt động thông qua UART (baud rate `115200`):
-- **Phản hồi trạng thái hệ thống**: `IDLE`, `RUNNING`, `ERROR`.
-- **Hỗ trợ 10 lệnh điều khiển & giám sát**:
-  - `help`: Hiển thị danh sách tất cả các lệnh khả dụng.
-  - `status`: Xem trạng thái hoạt động hiện tại của hệ thống.
-  - `start`: Khởi động hệ thống (chuyển trạng thái sang `RUNNING`).
-  - `stop`: Dừng hệ thống (chuyển trạng thái sang `IDLE`).
-  - `led on`: Bật sáng LED ngoài (chân `PB1`).
-  - `led off`: Tắt LED ngoài.
-  - `led toggle`: Đảo trạng thái LED ngoài.
-  - `led status`: Kiểm tra trạng thái hiện tại của LED (đang `ON` hay `OFF`).
-  - `reset`: Khôi phục hệ thống về trạng thái ban đầu (`IDLE`, tắt LED).
-  - `uptime`: Hiển thị tổng thời gian hệ thống đã hoạt động liên tục (tính bằng giây).
-- **Hệ thống Logging (`app_log`)**:
-  - Tự động ghi nhận và in thông báo phân cấp: `[INFO]`, `[WARNING]`, `[ERROR]` cho từng hành động để phục vụ debug và giám sát thời gian thực.
+## 🌟 Key Features
+
+- 💻 **Interactive Serial CLI**: A robust serial command processor allowing users to control and query the microcontroller via a standard terminal emulator (e.g., Tera Term, PuTTY, or minicom).
+- 🏷️ **Modular State Machine**: Dynamic system state transitions (`IDLE`, `RUNNING`, `ERROR`) with structured state access and clean abstraction.
+- ⚙️ **Peripheral & GPIO Control**: Command-driven management of physical hardware (LED toggling, state reading, and system resets).
+- 📝 **Structured Logging System**: Multi-level diagnostic log messaging system featuring `[INFO]`, `[WARNING]`, and `[ERROR]` levels printed to the console output.
+- 📊 **Run-Time Performance Stats**: Integrated execution monitoring, including system uptime tracking (seconds) and interactive command counter stats.
+- 🧱 **Clean & Scalable Codebase**: Full architectural separation between application logic (`app_main.c`), system state managers (`app_system.c`), peripheral drivers (`app_led.c`, `app_uart.c`), and command controllers (`app_command.c`).
 
 ---
 
-## 📂 Cấu Trúc Mã Nguồn (Kiến Trúc Module)
-Dự án được tổ chức theo cấu trúc module hóa cao nhằm tối ưu hóa việc quản lý mã nguồn, tránh ghi đè dữ liệu khi cấu hình lại bằng STM32CubeMX:
+## 🛠️ Architecture Overview
 
-- **`main.c`**: File khởi động ứng dụng chính (do CubeIDE tạo lập), chỉ gọi hàm khởi tạo `App_Main_Init()` và vòng lặp `App_Main_Loop()`.
-- **`app_config.h`**: File cấu hình chung cho toàn bộ ứng dụng (chân GPIO, cổng LED, kích thước bộ đệm UART, timeout,...). giúp dễ dàng thay đổi phần cứng.
-- **`app_main.h/c`**: Đóng vai trò lớp đệm quản lý nhận UART, xử lý chuỗi ký tự nhận được và phát hiện kết thúc lệnh (phím `Enter`).
-- **`app_command.h/c`**: Bộ phân tích và xử lý lệnh. Phân phối các chuỗi lệnh từ UART đến các module nghiệp vụ tương ứng.
-- **`app_system.h/c`**: Quản lý trạng thái logic (`IDLE`, `RUNNING`, `ERROR`) và thời gian hoạt động (`uptime`) của hệ thống.
-- **`app_led.h/c`**: Quản lý các thao tác phần cứng trực tiếp với LED ngoài thông qua thư viện HAL.
-- **`app_log.h/c`**: Bộ ghi log chuyên dụng hỗ trợ xuất thông báo ra UART theo chuẩn phân cấp sự kiện.
-- **`app_uart.h/c`**: Thư viện tiện ích đóng gói hàm truyền dữ liệu chuỗi ký tự qua cổng UART.
+The software design follows a modular, layer-separated structure. This decouples the low-level STM32 hardware abstraction layer (HAL) from high-level user interface commands, making porting or extending the application straightforward.
 
----
+```mermaid
+graph TD
+    User([User Terminal]) <-->|UART RX/TX| CoreUART[app_uart.c / USART1]
+    CoreUART <-->|Stream Buffer| MainLoop[app_main.c / Event Loop]
+    MainLoop -->|Pass Raw String| CommandParser[app_command.c / Shell]
+    CommandParser -->|Query/Update| SystemMgr[app_system.c / State Engine]
+    CommandParser -->|Toggle/Query| LEDDriver[app_led.c / GPIO Pin PH4]
+    CommandParser -->|Emit Events| LogMgr[app_log.c / Logger]
+    LogMgr -->|Format & Send| CoreUART
+```
 
-## 💻 Cách Kiểm Thử (Testing)
-1. Kết nối Board STM32F7 với máy tính thông qua cổng USB của CP2102.
-2. Mở phần mềm giả lập Terminal (khuyên dùng **Tera Term** hoặc **Hercules**).
-3. Cấu hình cổng COM chính xác của CP2102 với thông số:
-   - **Baud rate**: `115200`
-   - **Data**: `8 bit`
-   - **Parity**: `None`
-   - **Stop bits**: `1`
-4. Tiến hành nạp code vào vi điều khiển STM32F746.
-5. Xem thông báo chào mừng khởi động trên màn hình Terminal và gõ các lệnh điều khiển như: `help`, `led on`, `uptime`, `status`,...
+### Module Descriptions
 
----
-
-## 📈 Lịch Sử Tiến Độ Phát Triển
-
-### 🔹 Giai đoạn 1: UART Command Line cơ bản
-- Cấu hình USART1 với tốc độ 115200 baud.
-- Gửi thông báo chào mừng ra Tera Term khi khởi động.
-- Lắng nghe và ghép từng ký tự nhận được qua UART thành chuỗi lệnh hoàn chỉnh.
-- Xử lý các lệnh cơ bản: `help`, `status`, `start`, `stop`, `led on`, `led off`.
-
-### 🔹 Giai đoạn 2: Tách module UART (`app_uart`)
-- Tạo các file `app_uart.h` và `app_uart.c`.
-- Đóng gói hàm truyền chuỗi `UART_Send` để tối giản hóa code gửi nhận.
-
-### 🔹 Giai đoạn 3: Tách module trạng thái hệ thống (`app_system`)
-- Tạo các file `app_system.h` và `app_system.c`.
-- Xây dựng cơ chế lưu trữ an toàn trạng thái thông qua các hàm getter/setter: `System_Init`, `System_SetState`, `System_GetState`, `System_GetStateString`.
-
-### 🔹 Giai đoạn 4 - 7: Bổ sung tính năng ngoại vi & lệnh mở rộng
-- Tích hợp thêm các tính năng điều khiển LED nâng cao: `led toggle`, `led status`.
-- Bổ sung lệnh `reset` để đưa toàn bộ hệ thống về chế độ an toàn ban đầu.
-- Bổ sung lệnh `uptime` đo thời gian thực hệ thống hoạt động liên tục thông qua `HAL_GetTick()`.
-
-### 🔹 Giai đoạn 8: Tách module phân phối lệnh (`app_command`)
-- Tạo các file `app_command.h` và `app_command.c`.
-- Di chuyển toàn bộ nghiệp vụ kiểm tra chuỗi `strcmp` lệnh từ `app_uart.c` sang `app_command.c`. Lớp UART chỉ giữ nhiệm vụ truyền tải.
-
-### 🔹 Giai đoạn 9: Tập trung hóa file cấu hình (`app_config.h`)
-- Thiết lập file `app_config.h`.
-- Quy hoạch toàn bộ hằng số phần cứng (chân GPIO, port GPIO, kích thước mảng nhận, timeout) thành các định nghĩa Macro rõ ràng giúp dự án dễ dàng ánh xạ sang phần cứng mới.
-
-### 🔹 Giai đoạn 10 & 11: Chuẩn hóa hệ thống Logging (`app_log`)
-- Tạo lập các file `app_log.h` và `app_log.c`.
-- Định hình 3 hàm xuất log có phân cấp: `Log_Info`, `Log_Warning`, `Log_Error`.
-- Triển khai ghi log tự động cho các hành động cấu hình trạng thái, bật/tắt thiết bị, giúp công tác theo dõi sự kiện trở nên trực quan.
-
-### 🔹 Giai đoạn 12: Tách biệt hoàn toàn logic vòng lặp (`app_main`)
-- Chuyển toàn bộ các biến nhận đệm (`rxBuffer`, `rxByte`, `rxIndex`) từ file `main.c` sang `app_main.c`.
-- Thiết lập hàm App_Main_Init và App_Main_Loop để quản lý khởi tạo ứng dụng và nhận lệnh UART theo cơ chế polling.
-- Đưa file `main.c` về cấu trúc sạch 100%, bảo đảm không bao giờ bị mất mã nguồn ứng dụng khi lập trình viên thực hiện sinh lại code (Generate Code) cấu hình từ CubeMX `.ioc`.
+- **`app_main`**: Handles the non-blocking UART polling character stream, buffers incoming commands, echoes keyboard feedback, and triggers processing upon detecting carriage returns (`\r`/`\n`).
+- **`app_system`**: Manages global system states (`IDLE`, `RUNNING`, `ERROR`), counts processed commands, and exposes system uptime calculations derived from standard tick timings (`HAL_GetTick`).
+- **`app_command`**: Parses input strings and maps commands to target callbacks. Outputs interactive menu formatting and diagnostic messages.
+- **`app_led`**: High-level driver encapsulating the hardware registers for the LED attached to pin **PH4**.
+- **`app_uart`**: Wrapper over standard STM32 HAL Transmit commands to facilitate easy string print methods without boilerplate code.
+- **`app_log`**: Formats and prints formatted severity logs (`INFO`, `WARNING`, `ERROR`) indicating operations or critical alerts.
+- **`app_config`**: Centralized header file storing all hardware definitions, UART buffers, and communication timeouts.
 
 ---
 
-## 📊 Kết Quả Build & Phân Tích Hiệu Năng
-- **Trạng thái**: Build thành công 100%, **0 Errors**, **0 Warnings**.
-- **Tối ưu hóa**: Đã loại bỏ các tác vụ xóa mảng bộ đệm dư thừa tốn tài nguyên (`memset` ở vòng lặp nhận phím), giúp tiết kiệm chu kỳ CPU và tăng tốc độ phản hồi lệnh.
+## 🔌 Hardware Configurations
+
+The project is preconfigured to target the following MCU pinouts:
+
+| Hardware Component | STM32F746 MCU Pin | Configuration Type | Default Parameters / Hardware Link |
+|:---|:---|:---|:---|
+| **External Status LED** | `PH4` | GPIO Output (Push-Pull, No Pull) | active-HIGH external indicator LED |
+| **USART1 TX** | `PA9` | Alternate Function (UART) | Connected to ST-LINK Virtual COM Port |
+| **USART1 RX** | `PA10` | Alternate Function (UART) | Connected to ST-LINK Virtual COM Port |
+
+### UART Parameters
+* **Baud Rate**: `115200` bps
+* **Data Bits**: `8`
+* **Parity**: `None`
+* **Stop Bits**: `1`
+* **Flow Control**: `None`
+
+---
+
+## 🖥️ Interactive Command Set
+
+Once connected via a terminal, typing `help` lists the following available commands:
+
+| Command | Action Description | Log Level Triggers |
+|:---|:---|:---|
+| **`help`** | Displays the list of available commands and usage hints. | None |
+| **`status`** | Prints the current system state (`IDLE`, `RUNNING`, or `ERROR`). | None |
+| **`start`** | Sets the system state to `RUNNING`. | `[INFO] System started` |
+| **`stop`** | Sets the system state to `IDLE`. | `[INFO] System stopped` |
+| **`led on`** | Turns ON the external LED on `PH4`. | `[INFO] LED ON` |
+| **`led off`** | Turns OFF the external LED on `PH4`. | `[INFO] LED OFF` |
+| **`led toggle`**| Toggles the external LED state. | `[INFO] LED TOGGLE` |
+| **`led status`**| Queries and prints the exact logic state of the LED pin. | None |
+| **`uptime`** | Prints the system uptime in seconds since last boot. | None |
+| **`stats`** | Displays general telemetry: current state, LED state, uptime, and command usage counts. | None |
+| **`reset`** | Sets system state to `IDLE`, turns OFF the LED, and triggers a soft reset. | `[WARNING] System reset` |
+
+---
+
+## ⚡ Getting Started
+
+### 1. Prerequisites
+- **IDE**: [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) (v1.10.0 or higher recommended).
+- **Debugger**: ST-LINK/V2 onboard programmer or an equivalent hardware debugger.
+- **Serial Client**: [Tera Term](https://ttssh2.osdn.jp/index.html.en), [PuTTY](https://www.putty.org/), or Visual Studio Code Serial Monitor.
+
+### 2. Physical Setup
+1. Connect the STM32F7 board to your computer via a USB cable connected to the ST-LINK debugger interface.
+2. Hook up an LED to pin `PH4` (using a standard current-limiting resistor, e.g., 220Ω to GND).
+3. Open your terminal emulator client of choice. Set the serial port to point to the ST-LINK Virtual COM port and configure it with **115200 8N1** parameters. Set your terminal's "Receive" newline setting to **LF** or **CR+LF** for the best viewing experience.
+
+### 3. Build & Run
+1. Clone or import this repository folder inside STM32CubeIDE.
+2. Build the project by clicking the **Hammer icon** (or pressing `Ctrl+B`).
+3. Click the **Debug/Run icon** to flash the `.elf` file using the configuration file `stm32f7_smart_logger.launch`.
+4. Press the hardware `RESET` button on the STM32 board or run/resume execution inside the debugger.
+5. In your serial terminal, you will see the system boot logo:
+   ```text
+   STM32F7 Smart Logger Ready
+   Type help to see commands
+   > 
+   ```
+
+---
+
+## 📝 Example Session
+
+An interactive session showing basic inputs, LED switching, telemetry querying, and log updates:
+
+```text
+STM32F7 Smart Logger Ready
+Type help to see commands
+> help
+
+Available commands:
+help
+status
+start
+stop
+led on
+led off
+led toggle
+led status
+reset
+uptime
+stats
+
+> status
+
+System status: IDLE
+
+> start
+
+[INFO] System started
+
+> led on
+
+[INFO] LED ON
+
+> led status
+
+LED status: ON
+
+> stats
+
+System stats:
+State: RUNNING
+LED: ON
+Uptime: 45 s
+Command count: 5
+
+> reset
+
+[WARNING] System reset
+
+> 
+```
+
+---
+
+## 📂 Directory Structure
+
+```text
+├── .settings/              # IDE preferences
+├── Core/
+│   ├── Inc/
+│   │   ├── app_command.h   # CLI command definitions
+│   │   ├── app_config.h    # Pinouts, buffers & configurations
+│   │   ├── app_led.h       # LED control definitions
+│   │   ├── app_log.h       # Diagnostics log signatures
+│   │   ├── app_main.h      # Main controller interface
+│   │   ├── app_system.h    # System states and telemetry functions
+│   │   ├── app_uart.h      # UART low level wrappers
+│   │   └── main.h          # CubeMX generated HAL includes
+│   └── Src/
+│       ├── app_command.c   # Command interpreter matching logic
+│       ├── app_led.c       # Low-level GPIO register write/reads
+│       ├── app_log.c       # Logging levels implementations
+│       ├── app_main.c      # Characters collection loop
+│       ├── app_system.c    # Telemetry and state storage
+│       ├── app_uart.c      # HAL UART send wrappers
+│       ├── main.c          # MCU system clock and main entry point
+│       └── system_stm32f7xx.c
+├── Drivers/                # CMSIS and STM32F7xx HAL Driver libraries
+├── stm32f7_smart_logger.ioc # CubeMX MCU configurations
+└── stm32f7_smart_logger.launch # STM32CubeIDE debugger execution configuration
+```

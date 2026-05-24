@@ -16,10 +16,10 @@
 
 /*
  * Cau hinh LED
- * LED hien tai duoc noi voi chan PB1.
+ * LED hien tai duoc noi voi chan PH4.
  */
-#define APP_LED_GPIO_PORT      GPIOB
-#define APP_LED_GPIO_PIN       GPIO_PIN_1
+#define APP_LED_GPIO_PORT      GPIOH
+#define APP_LED_GPIO_PIN       GPIO_PIN_4
 
 /*
  * Cau hinh UART command buffer
